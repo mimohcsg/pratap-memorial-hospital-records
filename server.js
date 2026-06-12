@@ -34,7 +34,7 @@ const PORT = process.env.PORT || 3457;
 const ADMIN_KEY = process.env.ADMIN_KEY || 'admin123';
 const HOSPITAL_NAME = process.env.HOSPITAL_NAME || 'Pratap Memorial Family Hospital';
 const HOSPITAL_CITY = process.env.HOSPITAL_CITY || 'Jobat';
-const BASE_URL = process.env.BASE_URL || '';
+const BASE_URL = process.env.BASE_URL || 'https://pratap-memorial-hospital-records.onrender.com';
 
 function hospitalInfo() {
   return { name: HOSPITAL_NAME, city: HOSPITAL_CITY };
@@ -47,8 +47,7 @@ function getPrescriptionPdfToken(patientId, visitId) {
 function getPrescriptionPdfPublicUrl(patientId, visitId) {
   const token = getPrescriptionPdfToken(patientId, visitId);
   const pdfPath = `/api/public/prescriptions/${encodeURIComponent(patientId)}/${encodeURIComponent(visitId)}.pdf?token=${token}`;
-  if (BASE_URL) return `${BASE_URL.replace(/\/$/, '')}${pdfPath}`;
-  return pdfPath;
+  return `${BASE_URL.replace(/\/$/, '')}${pdfPath}`;
 }
 
 initDatabase();

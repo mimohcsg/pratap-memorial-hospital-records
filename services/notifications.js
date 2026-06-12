@@ -5,6 +5,19 @@ function formatPhone(phone) {
   return digits;
 }
 
+function buildWhatsAppLinks(formattedPhone, message) {
+  const encoded = encodeURIComponent(message);
+  return {
+    waAppLink: `https://api.whatsapp.com/send?phone=${formattedPhone}&text=${encoded}`,
+    waLink: `https://wa.me/${formattedPhone}?text=${encoded}`,
+  };
+}
+
+function appendPdfToMessage(message, pdfUrl) {
+  if (!pdfUrl || !pdfUrl.startsWith('https://')) return message;
+  return `${message}\n\n*Prescription PDF / प्रिस्क्रिप्शन PDF:*\n${pdfUrl}`;
+}
+
 async function sendWhatsAppText(phone, message) {
   const formattedPhone = formatPhone(phone);
   if (!formattedPhone || formattedPhone.length < 12) {
@@ -65,8 +78,8 @@ async function sendWhatsAppText(phone, message) {
     }
   }
 
-  const waLink = `https://wa.me/${formattedPhone}?text=${encodeURIComponent(message)}`;
-  return { method: 'wa_link', sent: false, waLink, phone: formattedPhone };
+  const links = buildWhatsAppLinks(formattedPhone, message);
+  return { method: 'wa_link', sent: false, ...links, phone: formattedPhone, message };
 }
 
 async function sendPrescriptionWhatsApp(phone, message, pdfUrl = null) {
@@ -75,11 +88,8 @@ async function sendPrescriptionWhatsApp(phone, message, pdfUrl = null) {
     return { method: 'invalid_phone', sent: false, error: 'Invalid phone number' };
   }
 
-  const fullMessage = pdfUrl
-    ? `${message}\n\nDownload Prescription PDF:\n${pdfUrl}`
-    : message;
-
-  const publicPdfUrl = pdfUrl && pdfUrl.startsWith('http') ? pdfUrl : null;
+  const publicPdfUrl = pdfUrl && pdfUrl.startsWith('https://') ? pdfUrl : null;
+  const fullMessage = appendPdfToMessage(message, publicPdfUrl);
 
   if (process.env.WHATSAPP_TOKEN && process.env.WHATSAPP_PHONE_NUMBER_ID && publicPdfUrl) {
     try {
@@ -104,7 +114,7 @@ async function sendPrescriptionWhatsApp(phone, message, pdfUrl = null) {
         }
       );
       if (docRes.ok) {
-        return { method: 'meta_document', sent: true, phone: formattedPhone, pdfUrl: publicPdfUrl };
+        return { method: 'meta_document', sent: true, phone: formattedPhone, pdfUrl: publicPdfUrl, message: fullMessage };
       }
       console.error('Meta WhatsApp document error:', await docRes.text());
 
@@ -125,7 +135,7 @@ async function sendPrescriptionWhatsApp(phone, message, pdfUrl = null) {
         }
       );
       if (textRes.ok) {
-        return { method: 'meta_text', sent: true, phone: formattedPhone, pdfUrl: publicPdfUrl };
+        return { method: 'meta_text', sent: true, phone: formattedPhone, pdfUrl: publicPdfUrl, message: fullMessage };
       }
       console.error('Meta WhatsApp text error:', await textRes.text());
     } catch (e) {
@@ -160,6 +170,7 @@ async function sendPrescriptionWhatsApp(phone, message, pdfUrl = null) {
           sent: true,
           phone: formattedPhone,
           pdfUrl: publicPdfUrl,
+          message: fullMessage,
         };
       }
       console.error('Twilio WhatsApp error:', await res.text());
@@ -168,8 +179,15 @@ async function sendPrescriptionWhatsApp(phone, message, pdfUrl = null) {
     }
   }
 
-  const waLink = `https://wa.me/${formattedPhone}?text=${encodeURIComponent(fullMessage)}`;
-  return { method: 'wa_link', sent: false, waLink, phone: formattedPhone, pdfUrl: publicPdfUrl || pdfUrl };
+  const links = buildWhatsAppLinks(formattedPhone, fullMessage);
+  return {
+    method: 'wa_link',
+    sent: false,
+    ...links,
+    phone: formattedPhone,
+    pdfUrl: publicPdfUrl,
+    message: fullMessage,
+  };
 }
 
 module.exports = { formatPhone, sendPrescriptionWhatsApp, sendWhatsAppText };

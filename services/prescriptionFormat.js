@@ -24,7 +24,7 @@ function getPrescriptionFooterLines() {
 function buildPrescriptionText({ hospitalName, hospitalCity, patient, visit }) {
   const [footer1, footer2] = getPrescriptionFooterLines();
   const lines = [
-    `+ *${hospitalName}*`,
+    `🏥*${hospitalName}*🏥`,
     ...(hospitalCity ? [`City: ${hospitalCity}`] : []),
     '*Prescription / दवा विवरण*',
     '',

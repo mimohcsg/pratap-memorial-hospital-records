@@ -161,14 +161,72 @@ function fmtWeight(kg) {
 function getWhatsAppResult(notifications) {
   if (!notifications) return null;
   if (notifications.whatsapp) return notifications.whatsapp;
-  if (notifications.waLink || notifications.sent) return notifications;
+  if (notifications.waLink || notifications.waAppLink || notifications.sent) return notifications;
   return null;
+}
+
+function switchToRegisterTab() {
+  document.getElementById('patient-modal')?.classList.add('hidden');
+  document.querySelectorAll('.tab').forEach((el) => el.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach((p) => p.classList.add('hidden'));
+  document.querySelector('.tab[data-tab="register"]')?.classList.add('active');
+  document.getElementById('tab-register')?.classList.remove('hidden');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function resetRegisterFormForNewPatient() {
+  document.getElementById('register-form')?.reset();
+  resetMedicineList('register-medicines-list', 'reg');
+  if (typeof resetPhotoUI === 'function') resetPhotoUI();
+  const feeInput = document.getElementById('treatmentFee');
+  if (feeInput) {
+    feeInput.value = defaultTreatmentFee;
+    delete feeInput.dataset.userEdited;
+  }
+  document.getElementById('register-error')?.classList.add('hidden');
+  document.getElementById('register-success')?.classList.add('hidden');
+}
+
+function prepareForNewPatientAfterWhatsApp() {
+  switchToRegisterTab();
+  resetRegisterFormForNewPatient();
+  const okEl = document.getElementById('register-success');
+  if (okEl) {
+    okEl.textContent = t('whatsappReturnHint');
+    okEl.classList.remove('hidden');
+    okEl.style.color = 'var(--success)';
+    setTimeout(() => okEl.classList.add('hidden'), 5000);
+  }
+}
+
+function openWhatsAppApp(wa) {
+  const link = wa.waAppLink || wa.waLink;
+  if (!link) return false;
+  const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+  sessionStorage.setItem('hospitalPendingWaReturn', '1');
+  if (isMobile) {
+    window.location.href = link;
+  } else {
+    window.open(link, '_blank', 'noopener,noreferrer');
+  }
+  return true;
+}
+
+function handleReturnFromWhatsApp() {
+  if (sessionStorage.getItem('hospitalPendingWaReturn') !== '1') return;
+  sessionStorage.removeItem('hospitalPendingWaReturn');
+  prepareForNewPatientAfterWhatsApp();
 }
 
 function openWhatsAppLink(waLink, waWindow = null) {
   if (!waLink) return false;
   if (waWindow && !waWindow.closed) {
     waWindow.location.href = waLink;
+    return true;
+  }
+  const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+  if (isMobile) {
+    window.location.href = waLink;
     return true;
   }
   const link = document.createElement('a');
@@ -200,8 +258,8 @@ function handleWhatsAppNotification(notifications, successEl = null) {
     }
     return true;
   }
-  if (wa.waLink) {
-    openWhatsAppLink(wa.waLink);
+  if (wa.waLink || wa.waAppLink) {
+    openWhatsAppApp(wa);
     const msg = t('whatsappOpening');
     if (successEl) {
       successEl.textContent = msg;
@@ -646,7 +704,6 @@ async function addVisit(patientId) {
 
 async function sendVisitWhatsApp(patientId, visitId) {
   const msgEl = document.getElementById('today-visit-msg');
-  const waWindow = window.open('about:blank', '_blank');
   if (msgEl) {
     msgEl.textContent = t('preparingBill');
     msgEl.classList.remove('hidden');
@@ -661,26 +718,26 @@ async function sendVisitWhatsApp(patientId, visitId) {
     });
     const data = await res.json();
     if (!res.ok) {
-      waWindow?.close();
       alert(data.error || 'Failed');
       return;
     }
     const wa = getWhatsAppResult(data.notifications);
     if (wa?.sent) {
-      waWindow?.close();
+      document.getElementById('patient-modal')?.classList.add('hidden');
+      prepareForNewPatientAfterWhatsApp();
       handleWhatsAppNotification(data.notifications, msgEl);
       return;
     }
-    if (wa?.waLink) {
-      const opened = openWhatsAppLink(wa.waLink, waWindow);
-      if (!opened) waWindow?.close();
+    if (wa?.waAppLink || wa?.waLink) {
+      document.getElementById('patient-modal')?.classList.add('hidden');
+      switchToRegisterTab();
+      resetRegisterFormForNewPatient();
+      openWhatsAppApp(wa);
       handleWhatsAppNotification(data.notifications, msgEl);
       return;
     }
-    waWindow?.close();
     handleWhatsAppNotification(null, msgEl);
   } catch (err) {
-    waWindow?.close();
     alert(err.message || 'Failed');
   }
 }
