@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+
+<html lang="hi">
+
+<head>
+
+  <meta charset="UTF-8" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>प्रताप मेमोरियल फैमिली हॉस्पिटल, जोबत</title>
+
+  <link rel="stylesheet" href="styles.css" />
+
+</head>
+
+<body>
+
+  <header>
+
+    <div class="header-inner">
+
+      <div>
+
+        <div class="lang-toggle">
+
+          <button type="button" id="lang-hi" class="lang-btn active">हिंदी</button>
+
+          <button type="button" id="lang-en" class="lang-btn">English</button>
+
+        </div>
+
+        <h1 id="hospital-name">प्रताप मेमोरियल फैमिली हॉस्पिटल</h1>
+        <p id="hospital-city" class="hospital-city">जोबत</p>
+
+        <p data-i18n="tagline">मरीज़ पंजीकरण · फोटो · दोबारा आने पर रिकॉर्ड देखें</p>
+
+      </div>
+
+      <button type="button" class="btn btn-muted btn-sm hidden" id="logout-btn" data-i18n="logout">लॉग आउट</button>
+
+    </div>
+
+  </header>
+
+
+
+  <div class="container">
+
+    <div class="card" id="login-card">
+
+      <h2 data-i18n="staffLogin">स्टाफ लॉगिन</h2>
+
+      <div class="form-group">
+
+        <label for="admin-key" data-i18n="accessKey">एक्सेस की</label>
+
+        <input type="password" id="admin-key" data-i18n-placeholder="accessKeyPlaceholder" placeholder="हॉस्पिटल एक्सेस की दर्ज करें" />
+
+      </div>
+
+      <button class="btn btn-primary" id="login-btn" data-i18n="login">लॉगिन</button>
+
+      <p class="error hidden" id="login-error"></p>
+
+    </div>
+
+
+
+    <div id="app-section" class="hidden">
+
+      <div class="tabs">
+
+        <button type="button" class="tab active" data-tab="register" data-i18n="tabRegister">नया मरीज़</button>
+
+        <button type="button" class="tab" data-tab="find" data-i18n="tabFind">मरीज़ खोजें</button>
+
+        <button type="button" class="tab" data-tab="reports" data-i18n="tabReports">रिपोर्ट</button>
+
+      </div>
+
+
+
+      <!-- Register -->
+
+      <div id="tab-register" class="tab-panel">
+
+        <div class="card">
+
+          <h2 data-i18n="registerTitle">नया मरीज़ पंजीकरण</h2>
+
+          <p class="voice-hint" data-i18n="voiceHint">माइक आइकन दबाकर बोलें — फ़ील्ड अपने आप भर जाएगी</p>
+
+          <p id="voice-status" class="voice-status hidden" role="status" aria-live="polite"></p>
+
+          <form id="register-form">
+
+            <div class="layout-with-photo">
+
+              <div class="form-col">
+
+                <div class="row">
+
+                  <div class="form-group">
+
+                    <label for="name" data-i18n="fullName">पूरा नाम *</label>
+
+                    <div class="input-with-voice">
+
+                      <input type="text" id="name" required data-i18n-placeholder="namePlaceholder" />
+
+                      <button type="button" class="voice-btn" data-field="name" aria-label="Speak">🎤</button>
+
+                    </div>
+
+                  </div>
+
+                  <div class="form-group">
+
+                    <label for="phone" data-i18n="mobileNumber">मोबाइल नंबर *</label>
+
+                    <div class="input-with-voice">
+
+                      <input type="tel" id="phone" maxlength="10" required />
+
+                      <button type="button" class="voice-btn" data-field="phone" aria-label="Speak">🎤</button>
+
+                    </div>
+
+                  </div>
+
+                </div>
+
+                <div class="row">
+
+                  <div class="form-group">
+
+                    <label for="age" data-i18n="age">उम्र</label>
+
+                    <div class="input-with-voice">
+
+                      <input type="number" id="age" min="0" max="130" />
+
+                      <button type="button" class="voice-btn" data-field="age" aria-label="Speak">🎤</button>
+
+                    </div>
+
+                  </div>
+
+                  <div class="form-group">
+
+                    <label for="weight" data-i18n="weight">वजन (किग्रा)</label>
+
+                    <div class="input-with-voice">
+
+                      <input type="number" id="weight" min="0" max="500" step="0.1" data-i18n-placeholder="weightPlaceholder" />
+
+                      <button type="button" class="voice-btn" data-field="weight" aria-label="Speak">🎤</button>
+
+                    </div>
+
+                  </div>
+
+                  <div class="form-group">
+
+                    <label for="gender" data-i18n="gender">लिंग</label>
+
+                    <div class="input-with-voice">
+
+                      <select id="gender">
+
+                        <option value="" data-i18n="genderSelect">चुनें</option>
+
+                        <option value="Male" data-i18n="genderMale">पुरुष</option>
+
+                        <option value="Female" data-i18n="genderFemale">महिला</option>
+
+                        <option value="Other" data-i18n="genderOther">अन्य</option>
+
+                      </select>
+
+                      <button type="button" class="voice-btn" data-field="gender" aria-label="Speak">🎤</button>
+
+                    </div>
+
+                  </div>
+
+                  <div class="form-group">
+
+                    <label for="bloodGroup" data-i18n="bloodGroup">ब्लड ग्रुप</label>
+
+                    <div class="input-with-voice">
+
+                      <select id="bloodGroup">
+
+                        <option value="" data-i18n="bloodUnknown">अज्ञात</option>
+
+                        <option value="A+">A+</option><option value="A-">A-</option>
+
+                        <option value="B+">B+</option><option value="B-">B-</option>
+
+                        <option value="AB+">AB+</option><option value="AB-">AB-</option>
+
+                        <option value="O+">O+</option><option value="O-">O-</option>
+
+                      </select>
+
+                      <button type="button" class="voice-btn" data-field="bloodGroup" aria-label="Speak">🎤</button>
+
+                    </div>
+
+                  </div>
+
+                </div>
+
+                <div class="form-group">
+
+                  <label for="address" data-i18n="address">पता</label>
+
+                  <div class="input-with-voice">
+
+                    <textarea id="address" rows="2" data-i18n-placeholder="addressPlaceholder"></textarea>
+
+                    <button type="button" class="voice-btn voice-btn-textarea" data-field="address" aria-label="Speak">🎤</button>
+
+                  </div>
+
+                </div>
+
+                <div class="row">
+
+                  <div class="form-group">
+
+                    <label for="allergies" data-i18n="allergies">एलर्जी</label>
+
+                    <div class="input-with-voice">
+
+                      <input type="text" id="allergies" data-i18n-placeholder="allergiesPlaceholder" />
+
+                      <button type="button" class="voice-btn" data-field="allergies" aria-label="Speak">🎤</button>
+
+                    </div>
+
+                  </div>
+
+                  <div class="form-group">
+
+                    <label for="emergencyContact" data-i18n="emergencyContact">आपातकालीन संपर्क</label>
+
+                    <div class="input-with-voice">
+
+                      <input type="text" id="emergencyContact" data-i18n-placeholder="emergencyPlaceholder" />
+
+                      <button type="button" class="voice-btn" data-field="emergencyContact" aria-label="Speak">🎤</button>
+
+                    </div>
+
+                  </div>
+
+                </div>
+
+                <div class="row">
+
+                  <div class="form-group">
+
+                    <label for="visitReason" data-i18n="visitReason">आने का कारण</label>
+
+                    <div class="input-with-voice">
+
+                      <input type="text" id="visitReason" data-i18n-placeholder="visitReasonPlaceholder" />
+
+                      <button type="button" class="voice-btn" data-field="visitReason" aria-label="Speak">🎤</button>
+
+                    </div>
+
+                  </div>
+
+                  <div class="form-group">
+
+                    <label for="visitNotes" data-i18n="treatmentNotes">इलाज नोट्स</label>
+
+                    <div class="input-with-voice">
+
+                      <textarea id="visitNotes" rows="2" data-i18n-placeholder="treatmentNotesPlaceholder"></textarea>
+
+                      <button type="button" class="voice-btn voice-btn-textarea" data-field="visitNotes" aria-label="Speak">🎤</button>
+
+                    </div>
+
+                  </div>
+
+                </div>
+
+                <div class="medicines-section form-group">
+
+                  <div class="form-group treatment-fee-row">
+
+                    <label for="treatmentFee" data-i18n="treatmentFee">इलाज शुल्क (₹)</label>
+
+                    <input type="number" id="treatmentFee" value="100" min="0" step="1" />
+
+                  </div>
+
+                  <label data-i18n="medicines">दी गई / बेची गई दवाइयाँ</label>
+
+                  <div id="register-medicines-list" class="medicines-list"></div>
+
+                  <div class="medicines-actions">
+
+                    <button type="button" id="register-add-medicine" class="btn btn-sm btn-muted" data-i18n="addMedicine">+ दवा जोड़ें</button>
+
+                    <div class="medicine-total"><span data-i18n="visitTotal">कुल राशि</span>: <span id="register-visit-total" class="medicine-total-value">₹100.00</span></div>
+
+                  </div>
+
+                </div>
+
+              </div>
+
+
+
+              <div class="photo-col">
+
+                <label data-i18n="patientPhoto">मरीज़ की फोटो</label>
+
+                <div class="camera-box">
+
+                  <video id="camera-video" class="hidden" autoplay playsinline muted></video>
+
+                  <img id="photo-preview" class="photo-preview hidden" alt="Patient photo" />
+
+                  <div id="photo-placeholder" class="photo-placeholder" data-i18n="noPhoto">कोई फोटो नहीं</div>
+
+                </div>
+
+                <div class="camera-actions">
+
+                  <button type="button" class="btn btn-sm btn-primary" id="start-camera-btn" data-i18n="openCamera">कैमरा खोलें</button>
+
+                  <button type="button" class="btn btn-sm btn-primary hidden" id="capture-btn" data-i18n="capturePhoto">फोटो लें</button>
+
+                  <button type="button" class="btn btn-sm btn-muted hidden" id="retake-btn" data-i18n="retake">दोबारा लें</button>
+
+                </div>
+
+                <p class="meta" id="camera-status" data-i18n="cameraHint">लाइव फोटो के लिए कैमरा उपयोग करें</p>
+
+              </div>
+
+            </div>
+
+            <button type="submit" class="btn btn-primary" id="save-patient-btn" style="margin-top:1rem;" data-i18n="savePatient">मरीज़ रिकॉर्ड सहेजें</button>
+
+            <p class="error hidden" id="register-error"></p>
+
+            <p class="success-msg hidden" id="register-success"></p>
+
+          </form>
+
+        </div>
+
+      </div>
+
+
+
+      <!-- Find -->
+
+      <div id="tab-find" class="tab-panel hidden">
+
+        <div class="card">
+
+          <h2 data-i18n="findTitle">मरीज़ खोजें</h2>
+
+          <div class="search-row">
+
+            <div class="input-with-voice search-voice">
+
+              <input type="search" id="search-input" data-i18n-placeholder="searchPlaceholder" />
+
+              <button type="button" class="voice-btn" data-field="search-input" aria-label="Speak">🎤</button>
+
+            </div>
+
+            <button type="button" class="btn btn-primary" id="search-btn" data-i18n="search">खोजें</button>
+
+          </div>
+
+          <p class="meta" data-i18n="searchTip">सुझाव: 10 अंकों का मोबाइल नंबर सबसे तेज़</p>
+
+          <div id="search-results" style="margin-top:1rem;"></div>
+
+        </div>
+
+        <div id="recent-patients" class="card" style="margin-top:1rem;">
+
+          <h3 data-i18n="recentPatients">हाल के मरीज़</h3>
+
+          <div id="recent-list"></div>
+
+        </div>
+
+      </div>
+
+
+
+      <!-- Reports -->
+
+      <div id="tab-reports" class="tab-panel hidden">
+
+        <div class="card">
+
+          <h2 data-i18n="reportTitle">रिपोर्ट और आय</h2>
+
+          <div class="report-controls">
+
+            <div class="report-period-tabs">
+
+              <button type="button" class="report-period-btn active" data-period="day" data-i18n="reportDay">दैनिक</button>
+
+              <button type="button" class="report-period-btn" data-period="week" data-i18n="reportWeek">साप्ताहिक</button>
+
+              <button type="button" class="report-period-btn" data-period="month" data-i18n="reportMonth">मासिक</button>
+
+            </div>
+
+            <div class="report-date-row">
+
+              <input type="date" id="report-date" />
+
+              <button type="button" class="btn btn-primary btn-sm" id="report-load-btn" data-i18n="reportLoad">रिपोर्ट देखें</button>
+
+            </div>
+
+          </div>
+
+          <div class="report-export-row">
+
+            <button type="button" class="btn btn-sm btn-primary" id="export-revenue-btn" data-i18n="exportRevenue">रिपोर्ट Excel डाउनलोड</button>
+
+            <button type="button" class="btn btn-sm btn-muted" id="export-patients-btn" data-i18n="exportPatients">सभी मरीज़ Excel</button>
+
+            <button type="button" class="btn btn-sm btn-muted" id="export-full-btn" data-i18n="exportFull">पूर्ण रिपोर्ट Excel</button>
+
+          </div>
+
+          <div id="report-content" style="margin-top:1rem;"></div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+
+    <!-- Patient detail modal -->
+
+    <div id="patient-modal" class="modal hidden">
+
+      <div class="modal-content card">
+
+        <button type="button" class="modal-close" id="close-modal">×</button>
+
+        <div id="patient-detail"></div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+
+  <script src="i18n.js"></script>
+
+  <script src="voice.js"></script>
+
+  <script src="camera.js"></script>
+
+  <script src="app.js"></script>
+
+  <script src="reports.js"></script>
+
+</body>
+
+</html>
+
+

@@ -1,0 +1,22 @@
+{
+  "name": "hospital-patient-records",
+  "version": "1.0.0",
+  "description": "Patient record management with photo capture",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "better-sqlite3": "^12.10.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "pdfkit": "^0.17.2",
+    "uuid": "^11.0.5",
+    "xlsx": "^0.18.5"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

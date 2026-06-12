@@ -1,0 +1,7 @@
+node_modules/
+.env
+data/patients.db
+data/patients.db-wal
+data/patients.db-shm
+data/photos/
+*.log

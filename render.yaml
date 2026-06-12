@@ -1,0 +1,35 @@
+services:
+  - type: web
+    name: pratap-memorial-hospital-records
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_PATH
+        value: /opt/render/project/src/data/patients.db
+      - key: HOSPITAL_NAME
+        value: Pratap Memorial Family Hospital
+      - key: HOSPITAL_CITY
+        value: Jobat
+      - key: DEFAULT_TREATMENT_FEE
+        value: "100"
+      - key: PRESCRIPTION_FOOTER_LINE1
+        value: Apka Apna Deepak Chouhan - Purv Nagar Panchayat Adhyaksh - Jobat District Alirajpur Madhya Pradesh
+      - key: PRESCRIPTION_FOOTER_LINE2
+        value: Jai Hind!!
+      - key: ADMIN_KEY
+        generateValue: true
+      - key: WHATSAPP_TOKEN
+        sync: false
+      - key: WHATSAPP_PHONE_NUMBER_ID
+        sync: false
+      - key: TWILIO_ACCOUNT_SID
+        sync: false
+      - key: TWILIO_AUTH_TOKEN
+        sync: false
+      - key: TWILIO_WHATSAPP_FROM
+        sync: false
