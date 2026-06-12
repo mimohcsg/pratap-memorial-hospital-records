@@ -135,9 +135,9 @@ const TRANSLATIONS = {
     todayBadge: 'Today',
   },
   hi: {
-    pageTitle: 'प्रताप मेमोरियल फैमिली हॉस्पिटल, जोबत — मरीज़ रिकॉर्ड',
+    pageTitle: 'प्रताप मेमोरियल फैमिली हॉस्पिटल, जोबट — मरीज़ रिकॉर्ड',
     hospitalName: 'प्रताप मेमोरियल फैमिली हॉस्पिटल',
-    hospitalCity: 'जोबत',
+    hospitalCity: 'जोबट',
     tagline: 'मरीज़ पंजीकरण · फोटो · दोबारा आने पर रिकॉर्ड देखें',
     logout: 'लॉग आउट',
     staffLogin: 'स्टाफ लॉगिन',
