@@ -22,7 +22,7 @@ services:
       - key: PRESCRIPTION_FOOTER_LINE2
         value: Jai Hind!!
       - key: ADMIN_KEY
-        generateValue: true
+        value: admin123
       - key: WHATSAPP_TOKEN
         sync: false
       - key: WHATSAPP_PHONE_NUMBER_ID
