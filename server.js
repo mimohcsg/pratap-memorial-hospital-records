@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const crypto = require('crypto');
 const { v4: uuidv4 } = require('uuid');
 const {
   initDatabase,
@@ -33,9 +34,21 @@ const PORT = process.env.PORT || 3457;
 const ADMIN_KEY = process.env.ADMIN_KEY || 'admin123';
 const HOSPITAL_NAME = process.env.HOSPITAL_NAME || 'Pratap Memorial Family Hospital';
 const HOSPITAL_CITY = process.env.HOSPITAL_CITY || 'Jobat';
+const BASE_URL = process.env.BASE_URL || '';
 
 function hospitalInfo() {
   return { name: HOSPITAL_NAME, city: HOSPITAL_CITY };
+}
+
+function getPrescriptionPdfToken(patientId, visitId) {
+  return crypto.createHmac('sha256', ADMIN_KEY).update(`${patientId}:${visitId}`).digest('hex').slice(0, 24);
+}
+
+function getPrescriptionPdfPublicUrl(patientId, visitId) {
+  const token = getPrescriptionPdfToken(patientId, visitId);
+  const pdfPath = `/api/public/prescriptions/${encodeURIComponent(patientId)}/${encodeURIComponent(visitId)}.pdf?token=${token}`;
+  if (BASE_URL) return `${BASE_URL.replace(/\/$/, '')}${pdfPath}`;
+  return pdfPath;
 }
 
 initDatabase();
@@ -138,6 +151,19 @@ const { buildPrescriptionText } = require('./services/prescriptionFormat');
 const { generatePrescriptionPdf } = require('./services/prescriptionPdf');
 const { sendPrescriptionWhatsApp } = require('./services/notifications');
 
+async function sendPrescriptionPdfResponse(res, patient, visit, inline = false) {
+  const buffer = await generatePrescriptionPdf({
+    hospitalName: HOSPITAL_NAME,
+    hospitalCity: HOSPITAL_CITY,
+    patient,
+    visit,
+  });
+  const filename = `prescription-${patient.patientId}-${visit.id.slice(0, 8)}.pdf`;
+  res.setHeader('Content-Type', 'application/pdf');
+  res.setHeader('Content-Disposition', `${inline ? 'inline' : 'attachment'}; filename="${filename}"`);
+  res.send(buffer);
+}
+
 async function notifyPrescriptionIfNeeded(patient, visit) {
   if (!visit || !patient?.phone) return null;
   const message = buildPrescriptionText({
@@ -146,7 +172,8 @@ async function notifyPrescriptionIfNeeded(patient, visit) {
     patient,
     visit,
   });
-  return sendPrescriptionWhatsApp(patient.phone, message);
+  const pdfUrl = getPrescriptionPdfPublicUrl(patient.patientId, visit.id);
+  return sendPrescriptionWhatsApp(patient.phone, message, pdfUrl);
 }
 
 app.post('/api/patients', async (req, res) => {
@@ -208,8 +235,28 @@ app.get('/api/patients/:patientId/visits/:visitId/whatsapp', async (req, res) =>
     if (!visit || visit.patientId !== req.params.patientId) {
       return res.status(404).json({ error: 'Visit not found' });
     }
+    const pdfUrl = getPrescriptionPdfPublicUrl(detail.patient.patientId, visit.id);
     const notifications = await notifyPrescriptionIfNeeded(detail.patient, visit);
-    res.json({ notifications: { whatsapp: notifications } });
+    res.json({ notifications: { whatsapp: { ...notifications, pdfUrl } } });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+app.get('/api/public/prescriptions/:patientId/:visitId.pdf', async (req, res) => {
+  try {
+    const { patientId, visitId } = req.params;
+    const token = req.query.token;
+    if (!token || token !== getPrescriptionPdfToken(patientId, visitId)) {
+      return res.status(403).json({ error: 'Invalid or missing token' });
+    }
+    const detail = getPatientDetail(patientId);
+    if (!detail) return res.status(404).json({ error: 'Patient not found' });
+    const visit = getVisit(visitId);
+    if (!visit || visit.patientId !== patientId) {
+      return res.status(404).json({ error: 'Visit not found' });
+    }
+    await sendPrescriptionPdfResponse(res, detail.patient, visit, true);
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
@@ -224,16 +271,7 @@ app.get('/api/patients/:patientId/visits/:visitId/pdf', async (req, res) => {
     if (!visit || visit.patientId !== req.params.patientId) {
       return res.status(404).json({ error: 'Visit not found' });
     }
-    const buffer = await generatePrescriptionPdf({
-      hospitalName: HOSPITAL_NAME,
-      hospitalCity: HOSPITAL_CITY,
-      patient: detail.patient,
-      visit,
-    });
-    const filename = `prescription-${detail.patient.patientId}-${visit.id.slice(0, 8)}.pdf`;
-    res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
-    res.send(buffer);
+    await sendPrescriptionPdfResponse(res, detail.patient, visit, false);
   } catch (err) {
     res.status(400).json({ error: err.message });
   }

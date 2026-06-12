@@ -22,9 +22,10 @@ function getPrescriptionFooterLines() {
 }
 
 function buildPrescriptionText({ hospitalName, hospitalCity, patient, visit }) {
+  const [footer1, footer2] = getPrescriptionFooterLines();
   const lines = [
-    `🏥 *${hospitalName}*`,
-    ...(hospitalCity ? [`📍 ${hospitalCity}`] : []),
+    `+ *${hospitalName}*`,
+    ...(hospitalCity ? [`City: ${hospitalCity}`] : []),
     '*Prescription / दवा विवरण*',
     '',
     `Patient / मरीज़: *${patient.name}*`,
@@ -59,7 +60,7 @@ function buildPrescriptionText({ hospitalName, hospitalCity, patient, visit }) {
   }
 
   lines.push('', 'Thank you for visiting us. / हमसे संपर्क करने के लिए धन्यवाद।');
-  lines.push('', ...getPrescriptionFooterLines());
+  lines.push('', `*${footer1}*`, `*${footer2}*`);
 
   return lines.join('\n');
 }

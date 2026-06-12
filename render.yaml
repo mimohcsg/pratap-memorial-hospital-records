@@ -23,6 +23,8 @@ services:
         value: Jai Hind!!
       - key: ADMIN_KEY
         value: admin123
+      - key: BASE_URL
+        value: https://pratap-memorial-hospital-records.onrender.com
       - key: WHATSAPP_TOKEN
         sync: false
       - key: WHATSAPP_PHONE_NUMBER_ID

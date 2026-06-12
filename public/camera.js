@@ -54,12 +54,26 @@ async function startCamera() {
     return;
   }
 
+  const constraints = [
+    { video: { facingMode: { exact: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false },
+    { video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false },
+    { video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } }, audio: false },
+  ];
+
   try {
     stopCamera();
-    const stream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } },
-      audio: false,
-    });
+    let stream = null;
+    let lastError = null;
+    for (const constraint of constraints) {
+      try {
+        stream = await navigator.mediaDevices.getUserMedia(constraint);
+        break;
+      } catch (err) {
+        lastError = err;
+      }
+    }
+    if (!stream) throw lastError || new Error('No camera available');
+
     cameraStream = stream;
     const video = els.video();
     video.srcObject = stream;
