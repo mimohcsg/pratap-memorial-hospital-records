@@ -803,3 +803,8 @@ document.addEventListener('DOMContentLoaded', () => {
       });
   }
 });
+
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') handleReturnFromWhatsApp();
+});
+window.addEventListener('pageshow', handleReturnFromWhatsApp);
